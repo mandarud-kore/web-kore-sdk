@@ -6,8 +6,8 @@
   botOptions.logLevel = 'debug';
   // botOptions.koreAPIUrl = "";
 
-  botOptions.koreAPIUrl = "https://bankingassistant-dev.kore.ai/api";
-  botOptions.brandingAPIUrl = botOptions.koreAPIUrl + '/1.1/wbservice/workbench/sdkData?objectId=hamburgermenu&objectId=brandingwidgetdesktop';
+  // botOptions.koreAPIUrl = "";
+  // botOptions.brandingAPIUrl = botOptions.koreAPIUrl + '/1.1/wbservice/workbench/sdkData?objectId=hamburgermenu&objectId=brandingwidgetdesktop';
 
   botOptions.koreSpeechAPIUrl = "";//deprecated
   //botOptions.bearer = "bearer xyz-------------------";
@@ -16,12 +16,12 @@
   botOptions.recorderWorkerPath = '../libs/recorderWorker.js';
 
 
-  botOptions.JWTUrl = "https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/users/sts";
+  botOptions.JWTUrl = "https://staging-bankassist.korebots.com/finastra-wrapper/token";
   botOptions.userIdentity = '';// Provide users email id here
-  botOptions.botInfo = { name: "UB_Banking", "_id": "st-333efe97-2a5b-5059-8264-8c80623ef3b5",customData:{"rtmType":"web"}}; // bot name is case sensitive
-  botOptions.clientId = "cs-f3c2f0bb-2245-51a9-bcfd-cb82c4468866";
-  botOptions.clientSecret = "MOlHKt63Co4bVPYrNSuUrrc7tEamylpBqKmVp2BaBRQ=";
-  botOptions.accountId = "5fad6c9a694b34300513832e";
+  botOptions.botInfo = { name: "Banking Assist", "_id": "",customData:{"rtmType":"web"}}; // bot name is case sensitive
+  // botOptions.clientId = "cs-f3c2f0bb-2245-51a9-bcfd-cb82c4468866";
+  // botOptions.clientSecret = "MOlHKt63Co4bVPYrNSuUrrc7tEamylpBqKmVp2BaBRQ=";
+  // botOptions.accountId = "5fad6c9a694b34300513832e";
   
   // To modify the web socket url use the following option
   // botOptions.reWriteSocketURL = {
@@ -30,10 +30,10 @@
   //     port: 'PORT_TO_BE_REWRITTEN'
   // };
 
-  // botOptions.botInfo.customData.accessToken = getCookie("accessToken");
-  // botOptions.botInfo.customData.source = getCookie("source");
-  // botOptions.botInfo.customData.tenantId = getCookie("tenantId");
-  // botOptions.botInfo.customData.uniqueUserId = getCookie("uniqueUserId");
+  botOptions.botInfo.customData.accessToken = getCookie("accessToken");
+  botOptions.botInfo.customData.source = getCookie("source");
+  botOptions.botInfo.customData.tenantId = getCookie("tenantId");
+  botOptions.botInfo.customData.uniqueUserId = getCookie("uniqueUserId");
 
   var chatConfig = {
     botOptions: botOptions,
@@ -50,7 +50,7 @@
     graphLib: "d3",				          // set google, to render google charts.This feature requires loader.js file which is available in google charts documentation.
     googleMapsAPIKey: "",
     minimizeMode: false,             // set true, to show chatwindow in minized mode 
-    supportDelayedMessages: true,    // enable to add support for renderDelay in message nodes which will help to render messages with delay from UI       
+    supportDelayedMessages: false,    // enable to add support for renderDelay in message nodes which will help to render messages with delay from UI       
     pickersConfig: {
       showDatePickerIcon: false,           //set true to show datePicker icon
       showDateRangePickerIcon: false,      //set true to show dateRangePicker icon
@@ -60,21 +60,21 @@
     }
   };
 
-  // function getCookie(cname) {
-  //   var name = cname + "=";
-  //   var decodedCookie = decodeURIComponent(document.cookie);
-  //   var ca = decodedCookie.split(';');
-  //   for (var i = 0; i < ca.length; i++) {
-  //     var c = ca[i];
-  //     while (c.charAt(0) == ' ') {
-  //       c = c.substring(1);
-  //     }
-  //     if (c.indexOf(name) == 0) {
-  //       return c.substring(name.length, c.length);
-  //     }
-  //   }
-  //   return "";
-  // }
+  function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
 
   /* 
   allowGoogleSpeech will use Google cloud service api.

@@ -1,20 +1,5 @@
 (function ($) {
 
-    var _hash = (location.href.split("#")[1] || "");
-    var hashObj = {};
-
-    if (_hash) {
-        try {
-            _hash = _hash.substr(0, _hash.length);
-            hashObj = atob(_hash);
-            //parses the JSON string to object
-            hashObj = JSON.parse(hashObj);
-        } catch (error) {
-            alert("Something went wrong. Please try again.." + error);
-        }
-
-    }
-
     $(document).ready(function () {
 
         function koreGenerateUUID() {
@@ -36,47 +21,60 @@
         }
 
         function assertion(options, callback) {
-            //console.log(options.botInfo.customData.tenantId);
-            if (hashObj && hashObj.jwt) {
-                options.assertion = hashObj.jwt;
-                options.handleError = koreBot.showError;
-                options.chatHistory = koreBot.chatHistory;
-                options.botDetails = koreBot.botDetails;
-                callback(null, options);
-                setTimeout(function () {
+            var jsonData = {
+                "tenantId": options.botInfo.customData.tenantId,
+                "uniqueUserId": options.botInfo.customData.uniqueUserId,
+            };
+            $.ajax({
+                url: options.JWTUrl,
+                type: 'post',
+                data: jsonData,
+                dataType: 'json',
+                success: function (data) {
+                    options.botInfo.chatBot = data.botInfo.name;
+                    chatConfig.botOptions.botInfo.name = data.botInfo.name;
+                    options.botInfo.taskBotId = data.botInfo._id;
+                    chatConfig.botOptions.botInfo._id = data.botInfo._id;
+                    options.koreAPIUrl = data.koreAPIUrl;
+                    options.assertion = data.jwt;
+                    options.uniqueUserId = data.uniqueUserId;
+                    options.handleError = koreBot.showError;
+                    options.chatHistory = koreBot.chatHistory;
+                    // options.botDetails = koreBot.botDetails(data);
+                    callback(null, options);
+                    setTimeout(function () {
+                        // getBrandingInformation(options);
+                        CheckRefreshToken(options);
+                        
+                    }, 2000);
+                },
+                error: function (err) {
+                    koreBot.showError(err.responseText);
+                }
+            });
+        }
+
+        function CheckRefreshToken(options){
+            var jsonData = {
+                "userId": window.jwtDetails.userInfo.userId,
+                "uniqueUserId": options.uniqueUserId
+            };
+            $.ajax({
+                url: "https://staging-bankassist.korebots.com/finastra-wrapper/uniqueUser",
+                type: 'post',
+                data: jsonData,
+                dataType: 'json',
+                success: function (data) {
                     if (koreBot && koreBot.initToken) {
                         koreBot.initToken(options);
                     }
-                }, 2000);
-            } else {
-                var jsonData = {
-                    "clientId": options.clientId,
-                    "clientSecret": options.clientSecret,
-                    "identity": uuid,
-                    "aud": "",
-                    "isAnonymous": false
-                };
-                $.ajax({
-                    url: options.JWTUrl,
-                    type: 'post',
-                    data: jsonData,
-                    dataType: 'json',
-                    success: function (data) {
-                        options.assertion = data.jwt;
-                        options.handleError = koreBot.showError;
-                        options.chatHistory = koreBot.chatHistory;
-                        callback(null, options);
-                    },
-                    error: function (err) {
-                        koreBot.showError(err.responseText);
-                    }
-                });
-            }
+                }
+            });
         }
 
         function getBrandingInformation(options) {
             $.ajax({
-                url: chatConfig.botOptions.brandingAPIUrl,
+                url: 'https://staging-bots.korebots.com/workbench/api/workbench/sdkData?objectId=hamburgermenu&objectId=brandingwidgetdesktop',
                 headers: {
                     'tenantId': chatConfig.botOptions.accountId,
                     'Authorization': "bearer " + options.authorization.accessToken,
@@ -106,21 +104,11 @@
         } else {
             uuid = koreGenerateUUID();
         }
+
         localStorage.setItem("korecom", uuid);
         var chatConfig = window.KoreSDK.chatConfig;
         chatConfig.botOptions.assertionFn = assertion;
         chatConfig.botOptions.jwtgrantSuccessCB = getBrandingInformation;
-        if (hashObj && hashObj.botInfo) {
-            chatConfig.botOptions.botInfo = hashObj.botInfo;
-        }
-
-        if (hashObj.koreAPIUrl) {
-            chatConfig.botOptions.koreAPIUrl = hashObj.koreAPIUrl + '/api/';
-        }
-
-        if (hashObj.brand && hashObj.brand.headerTitle) {
-            chatConfig.chatTitleOverride = hashObj.brand.headerTitle;
-        }
 
         var koreBot = koreBotChat();
         koreBot.show(chatConfig);
